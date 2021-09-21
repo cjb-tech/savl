@@ -11,24 +11,36 @@
 #define SUB_AND_MON_R 8
 #define USELESS 9
 
+
+#define ZERO_ANALOG 3
+#define X32_ANALOG 5
+#define DI_ANALOG 6
+#define TOP_L_ANALOG 9
+#define TOP_R_ANALOG 11
+#define SUB_AND_MON_L_ANALOG 7
+#define SUB_AND_MON_R_ANALOG 8
+#define USELESS_ANALOG 9
+
 #define SWITCHER 13
 
 #define SIZE 8
 
 
 bool is_switcher_on(){
-  return digitalRead(SWITCHER) == HIGH;
+  return true;//digitalRead(SWITCHER) == HIGH;
 }
 
 struct Pin{
   
   int num;
+  int analogNum;
   int power_on_delay;
   int power_off_delay;
 
   void setup(){
     pinMode(num, OUTPUT);
     digitalWrite(num, HIGH);  
+    analogWrite(analogNum, 0);
   }
   
   bool enabled(){
@@ -42,6 +54,7 @@ struct Pin{
 
     delay(power_off_delay);
     digitalWrite(num, HIGH);
+    analogWrite(analogNum, 255);
    }
 
   void enable(){
@@ -51,6 +64,7 @@ struct Pin{
 
     delay(power_on_delay);
     digitalWrite(num, LOW);
+    analogWrite(analogNum, 0);
    }
 
 };
@@ -62,14 +76,14 @@ struct Pin{
  */
 
 Pin pins[SIZE] = {
-  Pin{ZERO, 2000, 2000},
-  Pin{X32, 2000, 2000},
-  Pin{DI, 2000, 2000},
-  Pin{TOP_L, 2000, 2000},
-  Pin{TOP_R, 2000, 2000},
-  Pin{SUB_AND_MON_L, 2000, 2000},
-  Pin{SUB_AND_MON_R, 2000, 2000},
-  Pin{USELESS, 2000, 2000}
+  Pin{ZERO, ZERO_ANALOG, 2000, 2000},
+  Pin{X32, X32_ANALOG, 2000, 2000},
+  Pin{DI, DI_ANALOG, 2000, 2000},
+  Pin{TOP_L, TOP_L_ANALOG, 2000, 2000},
+  Pin{TOP_R, TOP_R_ANALOG, 2000, 2000},
+  Pin{SUB_AND_MON_L, SUB_AND_MON_L_ANALOG, 2000, 2000},
+  Pin{SUB_AND_MON_R, SUB_AND_MON_R_ANALOG, 2000, 2000},
+  Pin{USELESS, USELESS_ANALOG, 2000, 2000}
 };
 
 void enable(){
