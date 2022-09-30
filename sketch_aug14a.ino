@@ -7,18 +7,8 @@
 #define TOP_R 6
 #define SUB_AND_MON_L 7
 #define SUB_AND_MON_R 8
-#define USELESS_1 9
-#define USELESS_2 10
-
-#define ZERO_ANALOG 15
-#define X32_ANALOG 16
-#define DI_ANALOG 17
-#define TOP_L_ANALOG 18
-#define TOP_R_ANALOG 19
-#define SUB_AND_MON_L_ANALOG 20
-#define SUB_AND_MON_R_ANALOG 21
-#define USELESS_1_ANALOG 0
-#define USELESS_2_ANALOG -1
+#define STUFF_1 9
+#define STUFF_2 10
 
 #define SWITCHER 13
 
@@ -31,22 +21,18 @@ bool is_switcher_on() {
 
 struct Pin {
   int relay_pin;
-  bool repay_pin_inverted;
-  int led_pin;
+  bool relay_pin_inverted;
 
-  int delay_on;
-  int delay_off;
+  int delay_before_on;
+  int delay_before_off;
 
   void setup() {
     pinMode(relay_pin, OUTPUT);
-    digitalWrite(relay_pin, repay_pin_inverted);
-
-    pinMode(led_pin, OUTPUT);
-    digitalWrite(led_pin, 0);
+    digitalWrite(relay_pin, relay_pin_inverted);
   }
 
   bool is_enabled() {
-    return digitalRead(relay_pin) != repay_pin_inverted;
+    return digitalRead(relay_pin) != relay_pin_inverted;
   }
 
   void enable() {
@@ -54,9 +40,8 @@ struct Pin {
       return;
     }
 
-    delay(delay_on / 5);
-    digitalWrite(relay_pin, !repay_pin_inverted);
-    digitalWrite(led_pin, 255);
+    delay(delay_before_on);
+    digitalWrite(relay_pin, !relay_pin_inverted);
   }
 
   void disable() {
@@ -64,23 +49,22 @@ struct Pin {
       return;
     }
 
-    delay(delay_off / 5);
-    digitalWrite(relay_pin, repay_pin_inverted);
-    digitalWrite(led_pin, 0);
+    delay(delay_before_off);
+    digitalWrite(relay_pin, relay_pin_inverted);
   }
 };
 
 Pin pins[SIZE] = {
-  //{relay_pin_num, inverted, led_pin_num,      delay_on, delay_off }
-  {ZERO,            false,    ZERO_ANALOG,          2000, 2000},
-  {X32,             true,     X32_ANALOG,           2000, 2000},
-  {DI,              true,     DI_ANALOG,            2000, 2000},
-  {TOP_L,           true,     TOP_L_ANALOG,         2000, 2000},
-  {TOP_R,           true,     TOP_R_ANALOG,         2000, 2000},
-  {SUB_AND_MON_L,   true,     SUB_AND_MON_L_ANALOG, 2000, 2000},
-  {SUB_AND_MON_R,   true,     SUB_AND_MON_R_ANALOG, 2000, 2000},
-  {USELESS_1,       true,     USELESS_1_ANALOG,     2000, 2000},
-  {USELESS_2,       true,     USELESS_2_ANALOG,     2000, 2000}
+  //{relay_pin_num, inverted, delay_before_on, delay_before_off }
+  {ZERO,            true ,    0,               500},
+  {X32,             true,     500,             500},
+  {DI,              true,     5000,            2000}, // TODO: Засікти скільки врубаєтся пульт
+  {TOP_L,           true,     2000,            500},
+  {TOP_R,           true,     500,             2000},
+  {SUB_AND_MON_L,   true,     5000,            500},
+  {SUB_AND_MON_R,   true,     500,             2000},
+  {STUFF_1,         true,     2000,            500},
+  {STUFF_2,         true,     2000,            0},
 };
 
 void enable() {
