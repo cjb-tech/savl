@@ -1,5 +1,3 @@
-#include <TimedAction.h>
-
 #define LOOP_DELAY 500
 
 #define ZERO 2
@@ -16,11 +14,28 @@
 #define SWITCHER 13
 
 #define SIZE 9
+#define BLINK_INTERVAL 100
 
 char led_value = 0;
 
 bool is_switcher_on() {
   return digitalRead(SWITCHER) == HIGH;
+}
+
+void setLed(bool enabled){
+  digitalWrite(LED, enabled ? HIGH : LOW);
+}
+
+void blink(){
+  led_value = !led_value;
+  digitalWrite(LED, led_value == 1);
+}
+
+void delay_with_blink(int duration){
+  for(int i = 0; i < duration / BLINK_INTERVAL; i++){
+    delay(BLINK_INTERVAL);
+    blink();
+  }
 }
 
 struct Pin {
@@ -43,7 +58,7 @@ struct Pin {
     if (is_enabled()) {
       return;
     }
-    delay(delay_before_on);
+    delay_with_blink(delay_before_on);
     digitalWrite(relay_pin, !relay_pin_inverted);
   }
 
@@ -51,16 +66,10 @@ struct Pin {
     if (!is_enabled()) {
       return;
     }
-    delay(delay_before_off);
+    delay_with_blink(delay_before_off);
     digitalWrite(relay_pin, relay_pin_inverted);
   }
-
-  static void disable_static(Pin pin) {
-    pin.disable();
-  }
-  static void enable_static(Pin pin) {
-    pin.enable();
-  }
+  
 };
 
 Pin pins[SIZE] = {
@@ -76,12 +85,6 @@ Pin pins[SIZE] = {
   {STUFF_2,         true,     2000,            0},
 };
 
-void toggle();
-void blink();
-
-TimedAction toggleThread = TimedAction(1000,toggle);
-TimedAction blinkThread = TimedAction(100,blink);
-
 void enable() {
   for (int i = 0; i < SIZE; i++) {
     if (!is_switcher_on()) {
@@ -89,6 +92,9 @@ void enable() {
     }
     Pin pin = pins[i];
     pin.enable();
+  }
+  if(is_switcher_on()){
+    setLed(true);
   }
 }
 
@@ -99,6 +105,9 @@ void disable() {
     }
     Pin pin = pins[i];
     pin.disable();
+  }
+  if(!is_switcher_on()){
+    setLed(false);
   }
 }
 
@@ -114,34 +123,7 @@ void setup() {
 }
 
 void loop() {
-  bool is_on = is_switcher_on();
-  Serial.println(is_on ? "HIGH" : "LOW");
-  toggleThread.check();
-  blinkThread.check();
-}
-
-bool check_all_same() {
-  for(int i = 0;i<SIZE-1;i++){
-    Pin first_pin = pins[i];
-    Pin second_pin = pins[i+1];
-    if(first_pin.is_enabled() != second_pin.is_enabled()){
-      return false;
-    }
-  }
-  return true;
-}
-
-void blink(){
-  led_value = !led_value;
-  bool all_same = check_all_same();
-  if(all_same) {
-    digitalWrite(LED, !pins[0].is_enabled());
-  }else {
-    digitalWrite(LED, led_value);
-  }
-}
-
-void toggle(){
+  delay(LOOP_DELAY);
   if (is_switcher_on()) {
     enable();
   } else {
