@@ -1,4 +1,6 @@
 #define LOOP_DELAY 500
+#define BLINK_INTERVAL 100
+#define SIZE 9
 
 #define ZERO 2
 #define X32 3
@@ -10,13 +12,23 @@
 #define STUFF_1 9
 #define STUFF_2 10
 
+#define LED 12
 #define SWITCHER 13
-
-#define SIZE 9
 
 
 bool is_switcher_on() {
   return digitalRead(SWITCHER) == HIGH;
+}
+
+void set_led(bool enabled) {
+  digitalWrite(LED, enabled ? HIGH : LOW);
+}
+
+void delay_with_blink(int duration) {
+  for (int i = 0; i < duration / BLINK_INTERVAL; i++) {
+    delay(BLINK_INTERVAL);
+    digitalWrite(LED, digitalRead(LED) == HIGH ? LOW : HIGH);
+  }
 }
 
 struct Pin {
@@ -39,8 +51,7 @@ struct Pin {
     if (is_enabled()) {
       return;
     }
-
-    delay(delay_before_on);
+    delay_with_blink(delay_before_on);
     digitalWrite(relay_pin, !relay_pin_inverted);
   }
 
@@ -48,8 +59,7 @@ struct Pin {
     if (!is_enabled()) {
       return;
     }
-
-    delay(delay_before_off);
+    delay_with_blink(delay_before_off);
     digitalWrite(relay_pin, relay_pin_inverted);
   }
 };
@@ -75,6 +85,7 @@ void enable() {
     Pin pin = pins[i];
     pin.enable();
   }
+  set_led(true);
 }
 
 void disable() {
@@ -85,11 +96,12 @@ void disable() {
     Pin pin = pins[i];
     pin.disable();
   }
+  set_led(false);
 }
 
 void setup() {
   pinMode(SWITCHER, INPUT);
-
+  pinMode(LED, OUTPUT);
   for (int i = 0; i < SIZE; i++) {
     Pin pin = pins[i];
     pin.setup();
