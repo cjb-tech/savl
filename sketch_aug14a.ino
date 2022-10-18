@@ -2,7 +2,6 @@
 #define BLINK_INTERVAL 100
 #define SIZE 9
 
-#define ZERO 2
 #define X32 3
 #define DI 4
 #define TOP_L 5
@@ -66,14 +65,13 @@ struct Pin {
 
 Pin pins[SIZE] = {
   //{relay_pin_num, inverted, delay_before_on, delay_before_off }
-  {ZERO,            true ,    0,               500},
-  {X32,             true,     500,             500},
-  {DI,              true,     5000,            2000}, // TODO: Засікти скільки врубаєтся пульт
-  {TOP_L,           true,     2000,            500},
-  {TOP_R,           true,     500,             2000},
-  {SUB_AND_MON_L,   true,     5000,            500},
-  {SUB_AND_MON_R,   true,     500,             2000},
-  {STUFF_1,         true,     2000,            500},
+  {X32,             true,     0,               1000},
+  {DI,              true,     16000,           5000},
+  {TOP_L,           true,     2000,            2000},
+  {TOP_R,           true,     2000,            5000},
+  {SUB_AND_MON_L,   true,     6000,            2000},
+  {SUB_AND_MON_R,   true,     2000,            5000},
+  {STUFF_1,         true,     2000,            2000},
   {STUFF_2,         true,     2000,            0},
 };
 
