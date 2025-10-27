@@ -99,11 +99,11 @@ public:
     bool isEnabled = isUpsEnabled();
     Serial.println("Switching ups 1");
     digitalWrite(UPS_BUTTON, HIGH);
-    delay(4500);
+    delay_with_blink(4500);
     Serial.println("Switching ups 0");
     digitalWrite(UPS_BUTTON, LOW);
     while(isUpsEnabled() == isEnabled) {
-      delay(200);
+      delay_with_blink(200);
     }
     Serial.println("Switching ups finished");
   }
