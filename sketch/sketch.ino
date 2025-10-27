@@ -103,7 +103,7 @@ public:
     Serial.println("Switching ups 0");
     digitalWrite(UPS_BUTTON, LOW);
     while(isUpsEnabled() == isEnabled) {
-      delay_with_blink(200);
+      delay(200);
     }
     Serial.println("Switching ups finished");
   }
@@ -125,7 +125,7 @@ public:
 };
 
 Pin* pins[SIZE] = {
-  new Pin(X32,             true,     0,               1000),
+  new Pin(X32,             true,     500,               1000),
   new UpsPin(),
   new Pin(DI,              true,     16000,           5000),
   new Pin(TOP_L,           true,     2000,            2000),
