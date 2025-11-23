@@ -15,7 +15,7 @@
 #define SWITCHER 13
 #define UPS_STATUS A0
 #define UPS_BUTTON A1
-
+#define UPS_TIMEOUT 15000
 
 bool is_switcher_on() {
   return digitalRead(SWITCHER) == HIGH;
@@ -25,9 +25,9 @@ void set_led(bool enabled) {
   digitalWrite(LED, enabled ? HIGH : LOW);
 }
 
-void delay_with_blink(int duration) {
-  for (int i = 0; i < duration / BLINK_INTERVAL; i++) {
-    delay(BLINK_INTERVAL);
+void delay_with_blink(int duration, int interval = BLINK_INTERVAL) {
+  for (int i = 0; i < duration / interval; i++) {
+    delay(interval);
     digitalWrite(LED, digitalRead(LED) == HIGH ? LOW : HIGH);
   }
 }
@@ -102,8 +102,10 @@ public:
     delay_with_blink(4500);
     Serial.println("Switching ups 0");
     digitalWrite(UPS_BUTTON, LOW);
-    while(isUpsEnabled() == isEnabled) {
-      delay(200);
+    int timeSpent = 0;
+    while(isUpsEnabled() == isEnabled && timeSpent < UPS_TIMEOUT) {
+      delay_with_blink(200, 50);
+      timeSpent += 200;
     }
     Serial.println("Switching ups finished");
   }
@@ -157,10 +159,11 @@ void disable() {
   }
   set_led(false);
 }
-
+bool currentSwitchState = false;
 void setup() {
   pinMode(SWITCHER, INPUT);
   pinMode(LED, OUTPUT);
+  currentSwitchState = digitalRead(SWITCHER) == HIGH;
   for (int i = 0; i < SIZE; i++) {
     Pin* pin = pins[i];
     pin->setup();
@@ -171,8 +174,13 @@ void setup() {
 
 void loop() {
   delay(LOOP_DELAY);
-  if (is_switcher_on()) {
-    enable();
+  bool oldSwitchState = currentSwitchState;
+  currentSwitchState = is_switcher_on();
+  if (currentSwitchState == oldSwitchState) {
+    return;
+  }
+  if(currentSwitchState) {
+    enable();  
   } else {
     disable();
   }
